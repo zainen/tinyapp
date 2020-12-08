@@ -67,7 +67,7 @@ app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString()
   urlDatabase[newShortURL] = req.body.longURL
   res.send(req.statusCode);
-  console.log(urlDatabase)
+  // console.log(urlDatabase)
 });
 
 app.post('/urls/new', (req, res) => {
