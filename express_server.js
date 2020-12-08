@@ -23,6 +23,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
@@ -33,47 +34,58 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.longURL};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render('urls_show', templateVars)
 });
 
-app.get('/hello', (req, res) => {
-  const templateVars = { greeting: 'Hello World!' };
-  res.render('hello_world', templateVars);
-  // res.send('<html><body>Hello<b>World</b></body></html>\n');
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
-app.get('/set', (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
-});
-
-app.get('/fetch', (req, res) => {;
-  res.send(`a = ${a}`);
-});
 
 //adding posts
 
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString()
   urlDatabase[newShortURL] = req.body.longURL
-  res.send(req.statusCode);
+  // res.send('ok');
+  res.redirect(`/urls/${newShortURL}`)
   // console.log(urlDatabase)
 });
 
-app.post('/urls/new', (req, res) => {
-});
-
+// server listening
 
 app.listen(PORT, () => {;
   console.log(`Example app listening on port ${PORT}`)
 });
+
+
+// unneeded
+
+// app.get("/", (req, res) => {
+//   res.send("Hello");
+// });
+
+// app.get('/hello', (req, res) => {
+//   const templateVars = { greeting: 'Hello World!' };
+//   res.render('hello_world', templateVars);
+//   // res.send('<html><body>Hello<b>World</b></body></html>\n');
+// });
+
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
+// app.get('/set', (req, res) => {
+//   const a = 1;
+//   res.send(`a = ${a}`);
+// });
+// doesnt work since out of scope
+// app.get('/fetch', (req, res) => {;
+//   res.send(`a = ${a}`);
+// });
+
+// app.get('/u/:shortURL', (req, res) => {
+//   // console.log(req)
+// })
