@@ -64,9 +64,15 @@ app.get('/fetch', (req, res) => {;
 //adding posts
 
 app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send('ok');
+  const newShortURL = generateRandomString()
+  urlDatabase[newShortURL] = req.body.longURL
+  res.send(req.statusCode);
+  console.log(urlDatabase)
 });
+
+app.post('/urls/new', (req, res) => {
+});
+
 
 app.listen(PORT, () => {;
   console.log(`Example app listening on port ${PORT}`)
