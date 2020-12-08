@@ -40,11 +40,17 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render('urls_show', templateVars)
 });
-
+//changed u to urls
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+//added trying to get edit button on urls to redirect to short url
+app.get('/urls/:shortURL/edit', (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  res.render('urls_show', templateVars)
+})
 
 
 //adding posts
@@ -52,21 +58,18 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
-  // res.send('ok');
   res.redirect(`/urls/${newShortURL}`);
-  // console.log(urlDatabase);
 });
-
+//added trying to get edit function to work
 app.post('/u/:shortURL/edit', (req, res) => {
-  console.log(':updated')
-  console.log(urlDatabase[req.params.shortURL])
+  urlDatabase[req.params.shortURL] = req.body.longURL;
+  res.redirect('/urls')
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect('/urls/');
-  console.log(shortURL); //removed later
 });
 
 // server listening
