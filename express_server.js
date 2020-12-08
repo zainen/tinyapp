@@ -25,7 +25,7 @@ const urlDatabase = {
 
 
 app.get('/urls', (req, res) => {
-  console.log(urlDatabase) // to be removed later
+  // console.log(urlDatabase) // to be removed later
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
@@ -50,18 +50,23 @@ app.get('/u/:shortURL', (req, res) => {
 //adding posts
 
 app.post('/urls', (req, res) => {
-  const newShortURL = generateRandomString()
-  urlDatabase[newShortURL] = req.body.longURL
+  const newShortURL = generateRandomString();
+  urlDatabase[newShortURL] = req.body.longURL;
   // res.send('ok');
-  res.redirect(`/urls/${newShortURL}`)
-  // console.log(urlDatabase)
+  res.redirect(`/urls/${newShortURL}`);
+  // console.log(urlDatabase);
+});
+
+app.post('/u/:shortURL/edit', (req, res) => {
+  console.log(':updated')
+  console.log(urlDatabase[req.params.shortURL])
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  const shortURL = req.params.shortURL
-  delete urlDatabase[shortURL]
-  res.redirect('/urls/')
-  console.log(shortURL)
+  const shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect('/urls/');
+  console.log(shortURL); //removed later
 });
 
 // server listening
