@@ -3,7 +3,6 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
-
 app.set('view engine', 'ejs')
 
 
@@ -25,13 +24,11 @@ const urlDatabase = {
 
 
 app.get('/urls', (req, res) => {
-  // console.log(urlDatabase) // to be removed later
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
 // connected to urls_new.ejs
-
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -40,6 +37,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render('urls_show', templateVars)
 });
+
 //changed u to urls
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -53,19 +51,20 @@ app.get('/urls/:shortURL/edit', (req, res) => {
 })
 
 
-//adding posts
-
+// adding posts
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
   res.redirect(`/urls/${newShortURL}`);
 });
-//added trying to get edit function to work
+
+// edit url function input saved longURL in urls_show
 app.post('/u/:shortURL/edit', (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect('/urls')
 });
 
+// delete
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
@@ -78,31 +77,3 @@ app.listen(PORT, () => {;
   console.log(`Example app listening on port ${PORT}`)
 });
 
-
-// unneeded
-
-// app.get("/", (req, res) => {
-//   res.send("Hello");
-// });
-
-// app.get('/hello', (req, res) => {
-//   const templateVars = { greeting: 'Hello World!' };
-//   res.render('hello_world', templateVars);
-//   // res.send('<html><body>Hello<b>World</b></body></html>\n');
-// });
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-// app.get('/set', (req, res) => {
-//   const a = 1;
-//   res.send(`a = ${a}`);
-// });
-// doesnt work since out of scope
-// app.get('/fetch', (req, res) => {;
-//   res.send(`a = ${a}`);
-// });
-
-// app.get('/u/:shortURL', (req, res) => {
-//   // console.log(req)
-// })
