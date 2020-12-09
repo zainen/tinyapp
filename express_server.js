@@ -9,7 +9,8 @@ const templateVars = {
   username: '',
   shortURL: '',
   longURL: '',
-  urls: ''
+  urls: '',
+  cookie: ''
 }
 
 const generateRandomString = () => {
@@ -36,7 +37,7 @@ app.get('/urls', (req, res) => {
 
 // connected to urls_new.ejs
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  res.render("urls_new", templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -67,6 +68,12 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
+app.post('/logout', (req, res) => {
+  templateVars.username = ''
+  res.clearCookie('username')
+  res.redirect('/urls')
+})
+
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
@@ -83,7 +90,7 @@ app.post('/u/:shortURL/edit', (req, res) => {
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-  res.redirect('/urls/');
+  res.redirect('/urls');
 });
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
