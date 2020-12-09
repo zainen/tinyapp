@@ -5,12 +5,30 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs')
 
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 const templateVars = {
-  username: '',
+  user_id: '',
   shortURL: '',
   longURL: '',
   urls: '',
-  cookie: ''
+  cookie: '',
 }
 
 const generateRandomString = () => {
@@ -23,11 +41,6 @@ const generateRandomString = () => {
   return randomSix
 }
 
-
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
 
 
 app.get('/urls', (req, res) => {
@@ -65,10 +78,22 @@ app.get('/registration', (req, res) => {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // adding posts
+app.post('/registration', (req, res) => {
+  const id = generateRandomString()
+  const username = req.body.username
+  const password = req.body.password
+  users[id] = {id, username, password}
+  templateVars.user_id = id
+  res.cookie('user_id', id)
+  
+  console.log(id) // remove when completed
+  res.redirect('/urls')
+})
+
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
-  templateVars['username'] = req.body.username
-  // res.render("urls_index", templateVars)
+  templateVars.users = users
+  console.log(templateVars) // checking templateVars
   res.redirect('/urls');
 });
 
