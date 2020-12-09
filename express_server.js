@@ -56,6 +56,10 @@ app.get('/urls/:shortURL/edit', (req, res) => {
   templateVars['shortURL'] = req.params.shortURL;
   templateVars['longURL'] = urlDatabase[req.params.shortURL];
   res.render('urls_show', templateVars);
+});
+
+app.get('/registration', (req, res) => {
+  res.render('urls_registration', templateVars)
 })
 
 
