@@ -5,7 +5,12 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs')
 
-
+const templateVars = {
+  username: '',
+  shortURL: '',
+  longURL: '',
+  urls: ''
+}
 
 const generateRandomString = () => {
   let randomSix = ''
@@ -25,7 +30,7 @@ const urlDatabase = {
 
 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  templateVars['urls'] = urlDatabase;
   res.render('urls_index', templateVars);
 });
 
@@ -35,8 +40,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-  res.render('urls_show', templateVars)
+  templateVars['shortURL'] = req.params.shortURL;
+  templateVars['longURL'] = urlDatabase[req.params.shortURL];
+  res.render('urls_show', templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
@@ -46,8 +52,9 @@ app.get('/u/:shortURL', (req, res) => {
 
 //added trying to get edit button on urls to redirect to short url
 app.get('/urls/:shortURL/edit', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-  res.render('urls_show', templateVars)
+  templateVars['shortURL'] = req.params.shortURL;
+  templateVars['longURL'] = urlDatabase[req.params.shortURL];
+  res.render('urls_show', templateVars);
 })
 
 
@@ -55,6 +62,8 @@ app.get('/urls/:shortURL/edit', (req, res) => {
 // adding posts
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
+  templateVars['username'] = req.body.username
+  // res.render("urls_index", templateVars)
   res.redirect('/urls');
 });
 
