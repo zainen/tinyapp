@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser())
 app.set('view engine', 'ejs')
 
 const urlDatabase = {
@@ -41,7 +43,14 @@ const generateRandomString = () => {
   return randomSix
 }
 
-
+const checkObjEmails = (obj, email) => {
+  for (let ids in obj) {
+    console.log(obj[ids])
+    if (obj[ids].email === email) {
+      return true
+    }
+  }
+}
 
 app.get('/urls', (req, res) => {
   templateVars['urls'] = urlDatabase;
@@ -71,35 +80,38 @@ app.get('/urls/:shortURL/edit', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.get('/registration', (req, res) => {
-  res.render('urls_registration', templateVars)
+app.get('/register', (req, res) => {
+  res.render('urls_register', templateVars)
 })
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // adding posts
-app.post('/registration', (req, res) => {
+app.post('/register', (req, res) => {
   const id = generateRandomString()
-  const username = req.body.username
+  const email = req.body.email
   const password = req.body.password
-  users[id] = {id, username, password}
+  if (!email || !password) {
+    res.status(400).send("Username or Password not found")
+  }
+  if (checkObjEmails(users, email)) {
+    return res.status(400).send('Email already in use')
+  }
+  users[id] = {id, email, password}
   templateVars.user_id = id
   res.cookie('user_id', id)
-  
-  console.log(id) // remove when completed
-  res.redirect('/urls')
+  res.redirect('/register')
 })
 
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   templateVars.users = users
-  console.log(templateVars) // checking templateVars
   res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
-  templateVars.username = ''
-  res.clearCookie('username')
+  templateVars.user_id = ''
+  res.clearCookie('user_id')
   res.redirect('/urls')
 })
 
