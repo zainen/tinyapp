@@ -139,7 +139,6 @@ app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10)
-  console.log(bcrypt.compareSync(password, hashedPassword))
   if (!email || !hashedPassword) {
     res.status(400).send("Username or Password not found");
   }
@@ -156,8 +155,6 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10)
-  console.log(bcrypt.compareSync(password, hashedPassword))
-
   if (checkObjEmails(users, email)) {
     if (bcrypt.compareSync(password, hashedPassword)) {
       let id = findUserId(users, email);
