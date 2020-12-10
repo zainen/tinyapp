@@ -79,6 +79,7 @@ app.get('/urls', (req, res) => {
   let userID = req.cookies["user_id"];
   const urlsForuser = checkUser(userID)
   let templateVars = { urls: urlsForuser, user_id: userID };
+  templateVars.user_id = userID
   res.render('urls_index', templateVars);
 });
 
@@ -93,8 +94,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
+  const userID = req.cookies.user_id
   templateVars['shortURL'] = req.params.shortURL;
   templateVars['longURL'] = urlDatabase[req.params.shortURL].longURL;
+  templateVars.user_id = userID
   res.render('urls_show', templateVars);
 });
 
@@ -106,7 +109,7 @@ app.get('/u/:shortURL', (req, res) => {
 //added trying to get edit button on urls to redirect to short url
 app.get('/urls/:shortURL/edit', (req, res) => {
   templateVars['shortURL'] = req.params.shortURL;
-  templateVars['longURL'] = urlDatabase[req.params.shortURL];
+  templateVars['longURL'] = urlDatabase[req.params.shortURL].longURL;
   res.render('urls_show', templateVars);
 });
 
@@ -175,15 +178,26 @@ app.post('/urls', (req, res) => {
 
 // edit url function input saved longURL in urls_show
 app.post('/u/:shortURL/edit', (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  const userID = req.cookies.user_id;
+  const shortURL = req.params.shortURL
+  if (urlDatabase[shortURL].user_id === userID) {
+  urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect('/urls')
+  } else {
+    res.redirect('/login')
+  }
 });
 
 // delete
 app.post('/urls/:shortURL/delete', (req, res) => {
+  const userID = req.cookies.user_id
   const shortURL = req.params.shortURL;
+  if (urlDatabase[shortURL].user_id === userID) {
   delete urlDatabase[shortURL];
   res.redirect('/urls');
+  } else {
+    res.redirect('/login')
+  }
 });
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
