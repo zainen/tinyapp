@@ -25,14 +25,15 @@ const users = {
   }
 }
 
-const templateVars = {
+let templateVars = {
   user_id: '',
   shortURL: '',
   longURL: '',
   urls: '',
   cookie: '',
 }
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// functions
 const generateRandomString = () => {
   let randomSix = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -42,7 +43,6 @@ const generateRandomString = () => {
   }
   return randomSix
 }
-
 const checkObjEmails = (obj, email) => {
   for (let ids in obj) {
     console.log(obj[ids])
@@ -51,9 +51,25 @@ const checkObjEmails = (obj, email) => {
     }
   }
 }
-
+const checkObjPassword = (obj, password) => {
+  for (let ids in obj) {
+    if (obj[ids].password === password) {
+      return true
+    }
+  }
+}
+const findUserId = (obj, email) => {
+  for (let ids in obj) {
+    if(obj[ids].email === email) {
+      return ids
+    }
+  }
+} 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// get requests
 app.get('/urls', (req, res) => {
-  templateVars['urls'] = urlDatabase;
+  let userId = req.cookies["user_id"];
+  let templateVars = { urls: urlDatabase, user_id: userId}
   res.render('urls_index', templateVars);
 });
 
@@ -84,9 +100,18 @@ app.get('/register', (req, res) => {
   res.render('urls_register', templateVars)
 })
 
+app.get('/login', (req, res) => {
+  res.render('urls_login', templateVars)
+})
+
+app.get('/loginError', (req, res) => {
+  res.render('urls_loginError', templateVars)
+})
+
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// adding posts
+// posts requests
 app.post('/register', (req, res) => {
   const id = generateRandomString()
   const email = req.body.email
@@ -99,14 +124,26 @@ app.post('/register', (req, res) => {
   }
   users[id] = {id, email, password}
   templateVars.user_id = id
+  templateVars
   res.cookie('user_id', id)
-  res.redirect('/register')
+  res.redirect('/urls')
 })
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  templateVars.users = users
-  res.redirect('/urls');
+  const email = req.body.email
+  const password = req.body.password
+  if (checkObjEmails(users, email)) {
+    if (checkObjPassword(users, password)) {
+      let id = findUserId(users, email)
+      // templateVars.users = users
+      res.cookie('user_id', id);
+      res.redirect('/urls');
+    } else {
+      res.status(403).redirect('/loginError')
+    }
+  } else {
+    res.status(403).redirect('/loginError')
+  }
 });
 
 app.post('/logout', (req, res) => {

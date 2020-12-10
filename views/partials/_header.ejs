@@ -14,11 +14,8 @@
           <button type="submit">Logout</button>
           </a>
           </form>
-          <% } else { %>
-          <form method="POST" action="/login">
-          Username <input name="username">
-          <button type="submit">Sign in</button>
-        </form>
+        <% } else { %>
+          <a class="nav-item nav-link" href="/login">Login Now</a>
         <% } %>
       </div>
     </div>
