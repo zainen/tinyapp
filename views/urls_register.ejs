@@ -7,7 +7,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-    <title>Create a user!</title>
+    <title>Register!</title>
   </head>
 
   <body>
@@ -15,16 +15,20 @@
     <%- include('partials/_header') %>
 
     <main style="margin: 1em;">
-      <h3>Register Now!</h3>
+      <h3>Create Account</h3>
       <form method="POST" type="user" name="user">
         <div>
-          <label for="email">Email</label>
+          <label for="email">Email address</label>
+          <div>
             <input type="text" name="email">
+          </div>
         </div>
         <div class="form-group mb-2">
           <label for="password">Create Password</label>
-          <input type="text" name="password">
-          <button type="submit" class="btn btn-primary">Create User</button>
+          <div>
+            <input type="text" name="password">
+          </div>
+            <button type="submit" class="btn btn-primary">Create User</button>
         </div>
       </form>
     </main>
