@@ -4,7 +4,7 @@ const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-// const helperFuctions = require('/helperFunctions')
+const helperFuctions = require('./helperFunctions')
 // const password = 'purple-monkey-dinosaur';
 // const hashedPassword = bcrypt.hashSync(password, 10); 
 
@@ -45,47 +45,14 @@ let templateVars = {
   urls: '',
   cookie: '',
 };
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// functions
-const generateRandomString = () => {
-  let randomSix = ''
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  while (randomSix.length < 6) {
-    const randomChar = Math.floor(Math.random() * 62);
-    randomSix += characters[randomChar];
-  }
-  return randomSix;
-};
-const checkObjEmails = (obj, email) => {
-  for (let ids in obj) {
-    if (obj[ids].email === email) {
-      return true;
-    }
-  }
-};
-const checkObjPassword = (obj, password) => {
-  for (let ids in obj) {
-    if (obj[ids].password === password) {
-      return true;
-    }
-  }
-};
-const findUserId = (obj, email) => {
-  for (let ids in obj) {
-    if(obj[ids].email === email) {
-      return ids;
-    }
-  }
-};
-const checkUser = (userID) => {
-  let urlsForuser = {};
-  for (let shorts in urlDatabase) {
-    if (urlDatabase[shorts].user_id === userID) {
-      urlsForuser[shorts] = urlDatabase[shorts].longURL;
-    }
-  }
-  return urlsForuser;
-};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const generateRandomString = helperFuctions.generateRandomString
+const checkObjEmails = helperFuctions.checkObjEmails
+const findUserId = helperFuctions.findUserId
+const checkUser = helperFuctions.checkUser
+const checkObjPassword = helperFuctions.checkObjPassword
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // get requests
 app.get('/urls', (req, res) => {
@@ -143,28 +110,28 @@ app.get('/u/:shortURL', (req, res) => {
 // posts requests
 app.post('/register', (req, res) => {
   const id = generateRandomString();
-  const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  if (!email || !hashedPassword) {
-    res.status(400).send("Username or Password not found");
-  }
-  if (checkObjEmails(users, email)) {
+  if (!req.body.email || !hashedPassword || !password) {
+    req.body.email = undefined
+    res.status(400).send("Please enter an Email Address and Password.");
+  } else if (checkObjEmails(users, req.body.email)) {
     return res.status(400).send('Email already in use');
   }
+  const email = req.body.email;
   users[id] = {id, email, hashedPassword};
-  templateVars.user_id = id;
   req.session.user_id = id;
   res.redirect('/urls');
+  const ids = checkObjPassword(users, hashedPassword)
 });
 
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10)
+  let id = findUserId(users, email);
   if (checkObjEmails(users, email)) {
-    if (bcrypt.compareSync(password, hashedPassword)) {
-      let id = findUserId(users, email);
+    if (bcrypt.compareSync(password, users[id].hashedPassword)) {
       req.session.user_id = id;
       res.redirect('/urls');
     } else {

@@ -26,8 +26,8 @@ const checkObjEmails = (obj, email) => {
 };
 const checkObjPassword = (obj, password) => {
   for (let ids in obj) {
-    if (obj[ids].password === password) {
-      return true;
+    if (obj[ids].hashedPassword === password) {
+      return ids;
     }
   }
 };
@@ -38,7 +38,7 @@ const findUserId = (obj, email) => {
     }
   }
 };
-const checkUser = (userID) => {
+const checkUser = (userID, urlDatabase) => {
   let urlsForuser = {};
   for (let shorts in urlDatabase) {
     if (urlDatabase[shorts].user_id === userID) {
@@ -48,7 +48,7 @@ const checkUser = (userID) => {
   return urlsForuser;
 };
 
-module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString }
+module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString, checkObjPassword }
 
 
 // console.log(newFunc())
