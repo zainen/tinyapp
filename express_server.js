@@ -8,8 +8,8 @@ app.use(cookieParser())
 app.set('view engine', 'ejs')
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", user_id: 'asdf' },
+  "9sm5xK": { longURL: "http://www.google.com", user_id: 'asdf' }
 };
 
 const users = {
@@ -64,24 +64,37 @@ const findUserId = (obj, email) => {
     }
   }
 };
+const checkUser = (userID) => {
+  let urlsForuser = {};
+  for (let shorts in urlDatabase) {
+    if (urlDatabase[shorts].user_id === userID) {
+      urlsForuser[shorts] = urlDatabase[shorts].longURL;
+    }
+  }
+  return urlsForuser
+}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // get requests
 app.get('/urls', (req, res) => {
-  let userId = req.cookies["user_id"];
-  let templateVars = { urls: urlDatabase, user_id: userId}
+  let userID = req.cookies["user_id"];
+  const urlsForuser = checkUser(userID)
+  let templateVars = { urls: urlsForuser, user_id: userID };
   res.render('urls_index', templateVars);
 });
 
 // connected to urls_new.ejs
 app.get("/urls/new", (req, res) => {
-  let userId = req.cookies["user_id"];
-  let templateVars = { urls: urlDatabase, user_id: userId}
+  let userID = req.cookies["user_id"];
+  let templateVars = { urls: urlDatabase, user_id: userID}
+  if (!userID) {
+    res.redirect('/login')
+  }
   res.render("urls_new", templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   templateVars['shortURL'] = req.params.shortURL;
-  templateVars['longURL'] = urlDatabase[req.params.shortURL];
+  templateVars['longURL'] = urlDatabase[req.params.shortURL].longURL;
   res.render('urls_show', templateVars);
 });
 
@@ -153,8 +166,10 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
+  const userID = req.cookies.user_id
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = req.body.longURL;
+  urlDatabase[newShortURL] = { longURL: req.body.longURL, user_id: userID};
+  // console.log(urlDatabase, 'post')
   res.redirect(`/urls/${newShortURL}`);
 });
 
