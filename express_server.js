@@ -2,7 +2,12 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+// const password = 'purple-monkey-dinosaur';
+// const hashedPassword = bcrypt.hashSync(password, 10); 
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 app.set('view engine', 'ejs')
@@ -133,15 +138,16 @@ app.post('/register', (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
-  if (!email || !password) {
+  const hashedPassword = bcrypt.hashSync(password, 10)
+  console.log(bcrypt.compareSync(password, hashedPassword))
+  if (!email || !hashedPassword) {
     res.status(400).send("Username or Password not found");
   }
   if (checkObjEmails(users, email)) {
     return res.status(400).send('Email already in use');
   }
-  users[id] = {id, email, password}
+  users[id] = {id, email, hashedPassword}
   templateVars.user_id = id;
-  templateVars;
   res.cookie('user_id', id);
   res.redirect('/urls');
 });
@@ -149,8 +155,11 @@ app.post('/register', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10)
+  console.log(bcrypt.compareSync(password, hashedPassword))
+
   if (checkObjEmails(users, email)) {
-    if (checkObjPassword(users, password)) {
+    if (bcrypt.compareSync(password, hashedPassword)) {
       let id = findUserId(users, email);
       res.cookie('user_id', id);
       res.redirect('/urls');
