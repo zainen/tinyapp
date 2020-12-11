@@ -1,5 +1,5 @@
 const generateRandomString = () => {
-  let randomSix = ''
+  let randomSix = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   while (randomSix.length < 6) {
     const randomChar = Math.floor(Math.random() * 62);
@@ -17,11 +17,11 @@ const checkObjEmails = (obj, email) => {
 };
 const findUserId = (obj, email) => {
   for (let ids in obj) {
-    if(obj[ids].email === email) {
+    if (obj[ids].email === email) {
       return ids;
     }
   }
-  return undefined
+  return undefined;
 };
 const checkUser = (userID, urlDatabase) => {
   let urlsForuser = {};
@@ -41,7 +41,7 @@ const checkURL = (url) => {
   return url;
 };
 
-module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString, checkURL }
+module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString, checkURL };
 
 
 // console.log(newFunc())
