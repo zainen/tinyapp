@@ -42,7 +42,3 @@ const checkURL = (url) => {
 };
 
 module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString, checkURL };
-
-
-// console.log(newFunc())
-// console.log(generateRandomString())
