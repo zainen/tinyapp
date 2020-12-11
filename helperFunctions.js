@@ -1,13 +1,3 @@
-// const { response } = require("express");
-// const { url } = require("inspector");
-// const { PassThrough } = require("stream");
-
-// const newFunc = () => {
-//   let r = Math.random().toString(36).substr(7)
-//   return r
-// }
-
-
 const generateRandomString = () => {
   let randomSix = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -24,14 +14,6 @@ const checkObjEmails = (obj, email) => {
     }
   }
   return false;
-};
-const checkObjPassword = (obj, password) => {
-  for (let ids in obj) {
-    if (obj[ids].hashedPassword === password) {
-      return ids;
-    }
-  } 
-  return undefined
 };
 const findUserId = (obj, email) => {
   for (let ids in obj) {
@@ -52,15 +34,14 @@ const checkUser = (userID, urlDatabase) => {
 };
 
 const checkURL = (url) => {
-  if (!url.includes('http')) {
-    url = 'http:/' + '/' + url
-    return url
-  } else {
-    return url
+  if (!url.includes('http://')) {
+    const newURL = 'http://' + url;
+    return newURL;
   }
-}
+  return url;
+};
 
-module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString, checkObjPassword, checkURL }
+module.exports = { checkObjEmails, checkUser, findUserId, generateRandomString, checkURL }
 
 
 // console.log(newFunc())
