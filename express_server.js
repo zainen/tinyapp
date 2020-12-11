@@ -61,7 +61,6 @@ app.get('/urls', (req, res) => {
   const urlsForuser = checkUser(userID, urlDatabase);
   let templateVars = { urls: urlsForuser, user_id: userID };
   if (users[userID]) { // pass email to header
-    console.log(users);
     const email = users[userID].email;
     templateVars.email = email;
   }
