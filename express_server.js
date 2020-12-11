@@ -44,6 +44,7 @@ let templateVars = {
   longURL: '',
   urls: '',
   cookie: '',
+  email: ''
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,14 +53,19 @@ const checkObjEmails = helperFuctions.checkObjEmails
 const findUserId = helperFuctions.findUserId
 const checkUser = helperFuctions.checkUser
 const checkObjPassword = helperFuctions.checkObjPassword
+const checkURL = helperFuctions.checkURL
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // get requests
 app.get('/urls', (req, res) => {
   let userID = req.session["user_id"];
-  const urlsForuser = checkUser(userID)
+  const urlsForuser = checkUser(userID, urlDatabase)
   let templateVars = { urls: urlsForuser, user_id: userID };
   templateVars.user_id = userID
+  if (userID) {
+    const email = users[userID].email;
+    templateVars.email = email;
+  }
   res.render('urls_index', templateVars);
 });
 
@@ -67,7 +73,10 @@ app.get('/urls', (req, res) => {
 app.get("/urls/new", (req, res) => {
   let userID = req.session["user_id"];
   let templateVars = { urls: urlDatabase, user_id: userID}
-  if (!userID) {
+  if (userID) {
+    const email = users[userID].email;
+    templateVars.email = email;
+  } else if (!userID) {
     res.redirect('/login');
   }
   res.render("urls_new", templateVars);
@@ -76,6 +85,12 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const userID = req.session.user_id
   templateVars['shortURL'] = req.params.shortURL;
+  if (userID !== urlDatabase[req.params.shortURL].user_id) {
+    res.status(400).send('Not Your URL!!!')
+  }
+  if (!urlDatabase[req.params.shortURL]) {
+    res.redirect('/urls/new')
+  }
   templateVars['longURL'] = urlDatabase[req.params.shortURL].longURL;
   templateVars.user_id = userID;
   res.render('urls_show', templateVars);
@@ -112,14 +127,16 @@ app.post('/register', (req, res) => {
   const id = generateRandomString();
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
+  const triedEmail = req.body.email
   if (!req.body.email || !hashedPassword || !password) {
     req.body.email = undefined
     res.status(400).send("Please enter an Email Address and Password.");
-  } else if (checkObjEmails(users, req.body.email)) {
+  } else if (checkObjEmails(users, triedEmail)) {
     return res.status(400).send('Email already in use');
   }
   const email = req.body.email;
   users[id] = {id, email, hashedPassword};
+  templateVars.email = email
   req.session.user_id = id;
   res.redirect('/urls');
   const ids = checkObjPassword(users, hashedPassword)
@@ -129,7 +146,7 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10)
-  let id = findUserId(users, email);
+  const id = findUserId(users, email);
   if (checkObjEmails(users, email)) {
     if (bcrypt.compareSync(password, users[id].hashedPassword)) {
       req.session.user_id = id;
@@ -151,7 +168,9 @@ app.post('/logout', (req, res) => {
 app.post('/urls', (req, res) => {
   const userID = req.session.user_id
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = { longURL: req.body.longURL, user_id: userID};
+  const longURL = req.body.longURL
+  const url = checkURL(longURL)
+  urlDatabase[newShortURL] = { longURL: url, user_id: userID};
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -159,7 +178,10 @@ app.post('/urls', (req, res) => {
 app.post('/u/:shortURL/edit', (req, res) => {
   const userID = req.session.user_id;
   const shortURL = req.params.shortURL
-  if (urlDatabase[shortURL].user_id === userID) {
+  const longURL = req.body.longURL.trim()
+  if (longURL.length === 0) {
+    res.status(400).send('Please enter URL')
+  } else if (urlDatabase[shortURL].user_id === userID) {
   urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect('/urls')
   } else {
@@ -172,8 +194,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   const userID = req.session.user_id
   const shortURL = req.params.shortURL;
   if (urlDatabase[shortURL].user_id === userID) {
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');
+    delete urlDatabase[shortURL];
+    res.redirect('/urls');
   } else {
     res.redirect('/login');
   }
